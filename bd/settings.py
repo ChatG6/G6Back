@@ -181,5 +181,4 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/logout/'
 LOGOUT_REDIRECT_URL = 'login'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '391723835450-2tbeusrboo1qu9fsmr3oq46vbuuhsqfs.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
