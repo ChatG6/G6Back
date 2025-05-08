@@ -1,13 +1,35 @@
 # https://lukasschwab.me/arxiv.py/arxiv.html
 # https://poe.com/chat/2t4f2epll96yl0li4gn
-import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
-import json
 from ath.info import *
 import re
 from bs4 import BeautifulSoup
 from pyzotero import zotero
-
+import anthropic
+import time
+from typing import List
+client = anthropic.Anthropic(
+    # defaults to os.environ.get("ANTHROPIC_API_KEY")
+    api_key=Anthropic_key,
+)
+def claude_request_retry(prompt, max_retries=3, backoff_factor=2):
+    """Send a request to Claude API with retry logic"""
+    for attempt in range(max_retries):
+        try:
+            response = client.messages.create(
+                model="claude-3-7-sonnet-20250219",
+                max_tokens=1024,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise e
+            sleep_time = backoff_factor ** attempt
+            print(f"Retrying in {sleep_time} seconds... (Attempt {attempt + 1}/{max_retries})")
+            time.sleep(sleep_time)
 # Dependency functions
 ##backoff & retry implementation for zotero requests
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
@@ -22,11 +44,6 @@ def zoter_retrieve(zot):
 def zoter_delete(zot,z):
     resp = zot.delete_item(z)
     return resp
-##backoff & retry implementation for gpt requests
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-def gpt_request_retry(payload):
-   response = requests.post(api_url, headers=header2, json=payload)
-   return response
 #function to add citation (,),[] in the correct position
 def addcitation(message:str,citation:str,auth_name:str):
       pattern1 = fr"({auth_name +'.'})\'s\s*(\w+)"
@@ -199,47 +216,49 @@ class Literature_Review:
       r = f'[{i+1}] Title:{self.titles[i]}\n Authors:{self.authors[i]}\nURLs:{self.pdf_urls[i]}\nabstract:{self.abstracts[i]}\nPublish Year:{self.publish_years[i]}\n'
       print(r)
   ##function to summarize each article,then rephrasing via gpt prompts
-  def generate_literature_review(self) -> list:
-    lR  = []
-    for i in range(0,len(self.references)):
-      a = self.authors[i] 
-      t = self.abstracts[i]
-      payload = {
-        'model': 'gpt-4',
-        'messages': [
-              {'role': 'system', 'content': 'You are a helpful assistant.'},
-              {'role': 'user', 'content':f'Rephrase the following paragraph:\n{t} to include the author name:{a}'}
-            ]
-        }
-        # First GPT-4 Request
-      response = gpt_request_retry(payload)
-        #response = requests.post(api_url, headers=header2, json=payload)
-      print(response.json())
-        # Parse the response
-      data = response.json()
-      message = data['choices'][0]['message']['content']  
+  def generate_literature_review(self) -> List[str]:
+    """Generate literature review using Claude API"""
+    # Initialize the Anthropic client with your API key
+
+    
+    literature_review = []
+    
+    for i in range(0, len(self.references)):
+        author = self.authors[i]
+        abstract = self.abstracts[i]
         
-      print(message)  
-      lR.append(message)   
-    return lR
+        # Create the prompt for Claude
+        prompt = f"Rephrase the following paragraph:\n{abstract} to include the author name:{author}"
+        
+        # Make the Claude API request with retry logic
+        response = claude_request_retry(prompt)
+        
+        # Extract the response content
+        message = response.content[0].text
+        
+        print(message)
+        literature_review.append(message)
+    
+    return literature_review
 
   ##function to merge paragraphs,then rephrase in the appropriate way
   def merge_and_rephrase(self) -> str:
     m = '\n'.join(self.raw_literature_reviews)
     print(m)
     payload = {
-              'model': 'gpt-4',
+              'model': 'gpt-4.1-mini',
               'messages': [
             {'role': 'system', 'content': 'You are a helpful assistant.'},
             {'role': 'user', 'content':f'merge and rephrase the following pharagraphs together as a literature review about {self.subject}:\n{m} , and also remember to use linking words "While", "However" and "Whereas", between each paragraph'}
         ]
         }
+    prompt = f"Merge and rephrase the following paragraphs together as a literature review about {self.subject}. Please use linking words such as 'While', 'However', and 'Whereas' between each paragraph to create a cohesive narrative:\n\n{m}"
       # Second GPT-4 request 
-    response = gpt_request_retry(payload)
-    print(response.json())
-    # Parse the response
-    data = response.json()
-    message = data['choices'][0]['message']['content']  
+    #response = gpt_request_retry(payload)
+    response = claude_request_retry(prompt)
+        # Extract the response content
+    message = response.content[0].text
+        
     print(message)
     return message
   ##function to add citations to the literature

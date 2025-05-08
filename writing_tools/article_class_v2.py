@@ -1,21 +1,25 @@
-from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from tenacity import retry, stop_after_attempt, wait_exponential
 import arxiv
 from ath.info import *
 import re
 from .semantic import *
+llm = ChatAnthropic(
+    model="claude-3-7-sonnet-20250219",
+    api_key=Anthropic_key,
+    temperature=0
+)
 
 
-OpenAI_key = open_ai_key
 
 
-llm = ChatOpenAI(model='gpt-4', api_key=OpenAI_key,temperature=0)
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are world class technical documentation writer and an expert researcher."),
     ("user", "{input}")
 ])
-chain = prompt | llm 
+
+chain = prompt | llm
 ##backoff & retry implementation for generate requests
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def extract(statement):
@@ -191,12 +195,12 @@ class AutoComplete:
          return topic
     def search(self):
         refs = []
-        try:
-           references = semantic(search_in_semantic(self.Topic))
-           refs = organize(references) 
-        except:
-           references = search_in_arxiv(self.Topic)
-           refs = organize_arxiv(references)  
+        #try:
+           #references = semantic(search_in_semantic(self.Topic))
+           #refs = organize(references) 
+        #except:
+        references = search_in_arxiv(self.Topic)
+        refs = organize_arxiv(references)  
         print(refs)  
         print(references)       
         ser = []
