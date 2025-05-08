@@ -245,13 +245,8 @@ class Literature_Review:
   def merge_and_rephrase(self) -> str:
     m = '\n'.join(self.raw_literature_reviews)
     print(m)
-    payload = {
-              'model': 'gpt-4.1-mini',
-              'messages': [
-            {'role': 'system', 'content': 'You are a helpful assistant.'},
-            {'role': 'user', 'content':f'merge and rephrase the following pharagraphs together as a literature review about {self.subject}:\n{m} , and also remember to use linking words "While", "However" and "Whereas", between each paragraph'}
-        ]
-        }
+
+       
     prompt = f"Merge and rephrase the following paragraphs together as a literature review about {self.subject}. Please use linking words such as 'While', 'However', and 'Whereas' between each paragraph to create a cohesive narrative:\n\n{m}"
       # Second GPT-4 request 
     #response = gpt_request_retry(payload)

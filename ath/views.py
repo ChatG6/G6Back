@@ -101,15 +101,6 @@ def logout_proc(request):
 def message(viewName:str,msg:str) -> HttpResponsePermanentRedirect:
   return redirect(reverse(viewName) + '?message=' + msg)
 
-#under Test
-@csrf_exempt
-def send_email(request):
-  user = request.POST['usr']
-  email = request.POST['em']
-  subject = "Welcome to Our website!"
-  message = str(f"Hi user:{user}, \n Thanks to login to our website! \n")
-  from_email = EMAIL_HOST_USER
-  to_list = [email]
-  send_mail(subject,message,from_email,to_list,fail_silently=True)
+
 
 
