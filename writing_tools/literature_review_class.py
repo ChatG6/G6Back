@@ -13,6 +13,7 @@ client = anthropic.Anthropic(
     api_key=Anthropic_key,
 )
 def claude_request_retry(prompt, max_retries=3, backoff_factor=2):
+    print("[[ENTER CLAUDE]]")
     """Send a request to Claude API with retry logic"""
     for attempt in range(max_retries):
         try:
@@ -23,6 +24,7 @@ def claude_request_retry(prompt, max_retries=3, backoff_factor=2):
                     {"role": "user", "content": prompt}
                 ]
             )
+            
             return response
         except Exception as e:
             if attempt == max_retries - 1:
