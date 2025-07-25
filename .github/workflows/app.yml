@@ -25,10 +25,16 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Add Environment Variables
+        run: echo "${{vars.ENV}}" > .env
+
+      - name: Link systemd service file
         run: |
-          echo "${{vars.ENV}}" > .env
-      - name: Run Gunicorn
+          sudo ln -sf $PWD/deploy/gunicorn.service /etc/systemd/system/gunicorn.service
+          sudo systemctl daemon-reload
+          sudo systemctl enable gunicorn
+
+      - name: Restart Gunicorn via script
         run: |
-          source venv/bin/activate
-          gunicorn bd.wsgi:application --config prod.py
+          sudo $PWD/deploy/init_gunicorn.sh

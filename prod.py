@@ -13,8 +13,5 @@ timeout = 180
 
 capture_output = False
 
-daemon = True
-
 workers = multiprocessing.cpu_count() * 2 + 1
 
-reload = True
