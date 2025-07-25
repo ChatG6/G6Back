@@ -1,0 +1,39 @@
+name: Deploy Django Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    name: Deploy on EC2
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+     
+      - name: Install Dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Add Environment File
+        run: |
+          echo "${{vars.ENV}}" > .env
+      - name: Run Gunicorn to Test App
+        env:
+          DJANGO_SETTINGS_MODULE: bd.settings
+        run: |
+          source venv/bin/activate
+          gunicorn bd.wsgi:application --bind 127.0.0.1:8000 --timeout 30 --daemon
+          sleep 5
+          curl --fail http://127.0.0.1:8000 || (echo "Gunicorn failed!" && exit 1)
+          pkill gunicorn

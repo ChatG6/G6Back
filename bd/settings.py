@@ -81,7 +81,6 @@ MIDDLEWARE = [
 # Cross origin resource sharing (CORS) Configuration
 
 CORS_ALLOWED_ORIGINS = [
-	'http://13.51.83.183', 
      "http://localhost:3000",
 	'http://chatg6.ai',
 'https://chatg6.ai',
