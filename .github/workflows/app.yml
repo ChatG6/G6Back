@@ -17,23 +17,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-     
+          python-version: "3.10"
+
       - name: Install Dependencies
         run: |
-          python -m venv venv
+          python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Add Environment File
+      - name: Add Environment Variables
         run: |
           echo "${{vars.ENV}}" > .env
-      - name: Run Gunicorn to Test App
-        env:
-          DJANGO_SETTINGS_MODULE: bd.settings
+      - name: Run Gunicorn
         run: |
           source venv/bin/activate
-          gunicorn bd.wsgi:application --bind 127.0.0.1:8000 --timeout 30 --daemon
-          sleep 5
-          curl --fail http://127.0.0.1:8000 || (echo "Gunicorn failed!" && exit 1)
-          pkill gunicorn
+          gunicorn bd.wsgi:application --config prod.py
