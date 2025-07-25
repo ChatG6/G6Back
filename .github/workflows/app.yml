@@ -4,12 +4,10 @@ on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: self-hosted
     name: Deploy on EC2
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -27,14 +25,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Add Environment Variables
-        run: echo "${{vars.ENV}}" > .env
+        run: echo "${{ vars.ENV }}" > .env
 
-      - name: Link systemd service file
+      - name: Restart Gunicorn
         run: |
-          sudo ln -sf $PWD/deploy/gunicorn.service /etc/systemd/system/gunicorn.service
           sudo systemctl daemon-reload
-          sudo systemctl enable gunicorn
-
-      - name: Restart Gunicorn via script
-        run: |
-          sudo $PWD/deploy/init_gunicorn.sh
+          sudo systemctl restart gunicorn

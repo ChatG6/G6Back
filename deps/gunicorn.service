@@ -1,0 +1,18 @@
+[Unit]
+Description=Gunicorn daemon
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/actions-runner/_work/G6Back/G6Back
+Environment="PATH=/home/ubuntu/actions-runner/_work/G6Back/G6Back/venv/bin"
+ExecStart=/home/ubuntu/actions-runner/_work/G6Back/G6Back/venv/bin/gunicorn \
+          bd.wsgi:application \
+          --config /home/ubuntu/actions-runner/_work/G6Back/G6Back/prod.py
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
