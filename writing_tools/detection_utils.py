@@ -106,10 +106,6 @@ def plagiarism_detection(text:str,token:str):
     return s
 
 
-
-
-
-
 if __name__ == "__main__":
     text = "Some costs are incurred only when inflation is unanticipated, while other costs arise even when the inflation is fully anticipated. When unanticipated, price signals can become misinterpreted,and this can reduce economic efficiency. But once individuals adjust to the new higher inflation rate, accurate price signals are restored, and so this cost is only temporary. Only one-time increases in inflation are typically unexpected.Periods of sustained increasing inflation are typically anticipated because when prices rise in one month,individuals and markets may likely anticipate prices to rise in the following month. "
     print(plagiarism_detection(text))
