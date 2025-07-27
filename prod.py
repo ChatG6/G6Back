@@ -9,7 +9,7 @@ keepalive = 1000
 
 graceful_timeout = 1000
 
-timeout = 180
+timeout = 200
 
 capture_output = False
 
