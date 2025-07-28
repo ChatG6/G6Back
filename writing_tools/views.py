@@ -85,7 +85,7 @@ class Plagiarism_detector(APIView):
            status = check_with_retry(self,request)
            return Response(status, status=201)
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)}, status=500)
+            return JsonResponse({'detailx': str(ex)}, status=500)
 #backoff & retry implementation
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def article_with_retry(self, request, *args, **kwargs):

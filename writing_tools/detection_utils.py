@@ -12,7 +12,7 @@ from copyleaks.models.export import *
 
 def authenticate():
   
-
+    print("AUTH ENTERED")
 
     # Authenticating Process
     try:
