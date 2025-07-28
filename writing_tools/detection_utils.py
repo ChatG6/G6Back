@@ -14,7 +14,6 @@ def authenticate():
   
     print("AUTH ENTERED")
 
-    # Authenticating Process
     try:
        auth_token = Copyleaks.login(EMAIL_ADDRESS, KEY) 
        return auth_token
